@@ -25,7 +25,31 @@ public class PrefixTree {
      */
     public void add(String word){
         //TODO: complete me
+        TreeNode current = root;
+
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+ 
+            // Creating the new node if the path doesn't exist
+            if (!current.children.containsKey(c)) {
+                TreeNode newNode = new TreeNode();
+                newNode.letter = c;
+                current.children.put(c, newNode);
+            }
+
+            // Moving the to child node
+            current = current.children.get(c);
+        }
+
+        // Marking the the last node as the end of the word
+        if (!current.isWord) {
+            current.isWord = true;
+            size++; // Incrementing size only for new words
+        }
+       
     }
+
+    
 
     /**
      * Checks whether the word has been added to the tree
@@ -34,8 +58,26 @@ public class PrefixTree {
      */
     public boolean contains(String word){
         //TODO: complete me
-        return false;
+        TreeNode current = root;
+
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+
+            // Ifthe character path doesn't exist, then returning false
+            if (!current.children.containsKey(c)) {
+                return false;
+            }
+
+          
+            current = current.children.get(c);
+        }
+
+        // Checking if the last node marks the end of the word
+        return current.isWord;
     }
+
+       
+    
 
     /**
      * Finds the words in the tree that start with prefix (including prefix if it is a word itself).
@@ -45,7 +87,44 @@ public class PrefixTree {
      */
     public ArrayList<String> getWordsForPrefix(String prefix){
         //TODO: complete me
-        return null;
+        ArrayList<String> results = new ArrayList<>();
+        TreeNode endNode = traverseToPrefixEnd(prefix);
+
+        if (endNode != null) {
+            collectWords(endNode, prefix, results);
+        }
+
+        return results;
+        
+    }
+    // Traversing to the end node of the given prefix 
+    private TreeNode traverseToPrefixEnd(String prefix) {
+        TreeNode current = root;
+
+        for (int i = 0; i < prefix.length(); i++) {
+            char c = prefix.charAt(i);
+
+            
+            if (!current.children.containsKey(c)) {
+                return null;
+            }
+
+          
+            current = current.children.get(c);
+        }
+
+        return current;
+    }
+
+    private void collectWords(TreeNode node, String currentWord, ArrayList<String> results) {
+        // If the node marks the end of the word, then adding it to the results
+        if (node.isWord) {
+            results.add(currentWord);
+        }
+
+        for (Map.Entry<Character, TreeNode> entry : node.children.entrySet()) {
+            collectWords(entry.getValue(), currentWord + entry.getKey(), results);
+        }
     }
 
     /**
@@ -56,3 +135,4 @@ public class PrefixTree {
     }
     
 }
+
